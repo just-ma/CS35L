@@ -1,0 +1,107 @@
+Justin Ma
+Lab 6
+
+================================================================================
+SETTING UP
+
+
+<export PATH=/usr/local/cs/bin:$PATH>
+	Adds /usr/local/cs/bin to PATH so that we use the correct version of sort. We can check the 
+version to ensure this.
+
+
+<sort --version>
+Output:
+	sort (GNU coreutils) 8.29
+	Copyright (C) 2017 Free Software Foundation, Inc.
+	License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+	This is free software: you are free to change and redistribute it.
+	There is NO WARRANTY, to the extent permitted by law.
+
+	Written by Mike Haertel and Paul Eggert.
+
+Indeed, we are using the correct version. 
+	We want to generate a file of 10 million random single-precision floats, each on their own line, 
+without any white space. The 'od' command can interpret random bits from /dev/urandom into floats, and 
+the 'sed' and 'tr' commands can place each on their own line and remove blank spaces.
+
+
+================================================================================
+CREATING 10 MILLION FLOATS
+
+
+<man od>
+	From the manual page, I learned that '-t fF', which selects floats, can be shortened to '-f'. 
+The option '-N [SIZE]' selects SIZE number of bytes. For single-precision floats, we want 4 bytes for 
+each float. Since we are creating a file of 10 million floats, the total number of bytes is 40 million. 
+The output will be displayed as rows of 20 bytes each, meaning 4 floats every row. Each row start with 
+an address, which will need to be removed. The floats are separated by tabs, so those will have to be 
+converted to newline characters.
+
+
+<man tr>
+	From the manual page, I learned that the '-s' options group duplicate inputs into one output, so 
+"-s ' ' '\n'" would turn all consecutive white space into one newline. 
+
+
+<man sed>
+	From the manual page, I learned that the '1~5d' options would delete every fifth line starting 
+with the first line. This will get rid of all the addresses at the beginning of the file.
+
+
+<od -f -N 40000000 < /dev/urandom | tr -s ' ' '\n' | sed 1~5d > rand.txt>
+
+
+================================================================================
+MEASURING TIME OF SORT
+
+
+	Now, we need to find the time it takes to run 'sort -g' without any parallelism. The input is 
+supplied by rand.txt which was just created. The output gets discarded to /dev/null.
+
+
+<time -p sort -g rand.txt > /dev/null>
+Output:
+	real 21.70
+	user 117.19
+	sys 0.69
+
+
+<sort --help>
+	From this information, I found out to change the number of sorts that are executed concurrently, 
+I use the option '--parallel=N' with N being the number of threads. We want to find the time for N = 1, 
+2, 4, and 8.
+	
+
+<time -p sort -g --parallel=1 rand.txt > /dev/null>
+Output:
+	real 114.53
+	user 114.33
+	sys 0.19
+
+
+<time -p sort -g --parallel=2 rand.txt > /dev/null>
+Output:
+	real 61.39
+	user 115.21
+	sys 1.19
+
+
+<time -p sort -g --parallel=4 rand.txt > /dev/null>
+Output:
+	real 37.24
+	user 120.81
+	sys 1.00
+
+
+<time -p sort -g --parallel=8 rand.txt > /dev/null>
+Output:
+	real 22.70
+	user 119.52
+	sys 1.61
+
+
+	This shows that when the number of threads is less than 8, it actually runs much slower that 
+without parallelism. At 8, the real runtime is very close to the original.
+
+================================================================================

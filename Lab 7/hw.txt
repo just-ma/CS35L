@@ -1,0 +1,31 @@
+Justin Ma
+
+================================================================================
+
+1. If the other teams could observe all the bytes going across the network, the 
+resulting network is still secure because they don't know what my private key is. 
+The private key is only located on my machine and is required to decrypt the 
+bytes, so they would not able to decrypt anything. 
+
+	1. If the other teams tracked the keystrokes too, the resulting network 
+	would still be secure. They would know what the password is, but the 
+	private key is generated independent of the it. Thus, they still would not 
+	know what my private key, and not decrypt anything.
+
+	2. If I was booting off USB and the other teams had access to the USB, the 
+	network may not be secure, since the private key could be located on the 
+	USB drive. With access to the private key, they can decrypt messages going 
+	across the network.
+
+
+2. The gpg --verify command does not truly verify that I created a tar file 
+because it only compares if the file's detached signature matches my signature. 
+Since the public key can be modified, the detached signature can be changed as 
+well. Thus, a file created by anyone but modified with my signature will pass the 
+gpg --verify command.
+
+A solution to this would be to include one's public key along with the tar file, so 
+others can manually check if the public keys match. Once that is confirmed, the gpg 
+--verify command can be used to verify the creator.
+
+================================================================================

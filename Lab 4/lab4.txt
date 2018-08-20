@@ -1,0 +1,256 @@
+Justin Ma
+Lab 4
+
+================================================================================
+DOWNLOADING COREUTILS
+
+
+<wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/
+coreutils-with-bug.tar.gz>
+	This downloaded the tar file I needed. Now, I have 
+to decompress it.
+
+
+<tar -xzvf coreutils-with-bug.tar.gz>
+	This decompressed the tar file. All the contents are
+ now in a folder named 'coreutils-with-bug'.
+
+
+================================================================================
+RECREATING BUG
+
+
+<cd coreutils-with-bug>
+<./configure>
+<make>
+	The directory is changed to coreutils-with-bug. Running './configure' configures the file and 
+the make command compiles it. However, it ran into an error when compiling, which is shown below.
+	
+
+	In file included from utimecmp.c:41:0:
+	utimens.h:2:5: error: conflicting types for 'futimens'
+	 int futimens (int, char const *, struct timespec const [2]);
+	     ^~~~~~~~
+	In file included from utimecmp.h:25:0,
+	                 from utimecmp.c:25:
+	/usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was here
+	 extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
+	            ^~~~~~~~
+
+
+	This error occurs because there re two declarations of 'futimens' functions. These two 
+functions have conflicting parameters. 
+
+
+<wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/coreutils.diff>
+	This command downloads the patch as coreutils.diff.
+
+
+<emacs coreutils.diff>
+	From the patch, we can see that it renames one of the 'futimens' functions to 
+'coreutils_futimens', to avoid the conflict described above. Thus, with the patch, it should compile 
+without errors. We can also see that the option for patch must be '-p0' since the paths to all the 
+files don't need to be modified.
+<C-x>
+<C-c>
+
+
+<patch -p0 <coreutils.diff>
+	This applies the patch coreutils.diff without any changes to the file names.
+
+
+<make>
+	Again, we compile the file, but with the patch, no errors are produced.
+
+
+<cd ..>
+<tmp=$(mktemp -d)>
+<cd $tmp>
+<touch -d '1918-11-11 11:00 GMT' wwi-armistice>
+<touch now>
+<sleep 1>
+<touch now1>
+<TZ=UTC0 /u/eng/class/classurx/35L/lab4/coreutils-with-bug/src/ls -lt --full-time wwi-armistice now now1>
+Output:
+	-rw-r--r-- 1 classurx class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+	-rw-r--r-- 1 classurx class 0 2018-02-08 08:49:22.818686647 +0000 now1
+	-rw-r--r-- 1 classurx class 0 2018-02-08 08:49:21.814669924 +0000 now
+<cd>
+<rm -fr $tmp>
+
+	To recreate the bug, these commands were copied from the assignment page, except instead of 
+ls, I used the coreutil's version of ls. The order of the output is suppose to be sorted from newest 
+to oldest with the '-t' flag. However, we see that wwi-armistice is listed first even though it was 
+created around a century before the other two files.
+
+
+================================================================================
+DEBUGGING USING GDB
+
+
+<cd 35L/lab4/coreutils-with-bug/src>
+	This moves us to the directory where coreutil's ls command is located. We need to be located 
+here to run gdb on ls. But before that, we should create the same files wwi-armistice, now, and now1, 
+so we can retest for bugs.
+
+
+<<touch -d '1918-11-11 11:00 GMT' wwi-armistice>
+<touch now>
+<sleep 1>
+<touch now1>
+	Now the files are created and we are ready to open ls in gdb.
+
+
+<gdb ./ls>
+	The ls command is opened in gdb.
+
+
+<info>
+	This gives me a list of all possible info commands. I decided that 'info functions' would be 
+helpful for finding breakpoints.
+
+
+<info functions>
+	I found a few functions that would possibly compare the ages of files and sort them. I picked 
+out 'compare_atime', 'compare_ctime', 'compare_mtime', and 'sort_files', and chose to use these 
+functions as breakpoints.
+
+
+<br compare_atime>
+<br compare_ctime>
+<br compare_mtime>
+<br sort_files>
+	This sets all the functions mentioned above as breakpoints. Now we can run the command to 
+observe what occurs at these breakpoints.
+
+
+<run -lt --full-time wwi-armistice now now1>
+	This runs the command that produced the bug. The first break was for sort_files, shown below.
+Output:
+	Breakpoint 4, sort_files () at ls.c:2954
+
+	After stepping through a few lines with <s>, I find out that it sorts files based on the 
+function 'compare_mtime'. 
+Output:
+	2975		      func = sort_reverse ? rev_cmp_mtime : compare_mtime;
+
+	This means we need to look for compare_mtime, so I continued to the next breakpoint using <c> 
+until I reached compare_mtime. Conveniently, compare_mtime was the very next breakpoint.
+Output:
+	Breakpoint 3, compare_mtime (a=0x617160, b=0x617210) at ls.c:2884
+	2884	static int compare_mtime (V a, V b) { return cmp_mtime (a, b, xstrcoll);
+
+	It calls the 'cmp_mtime' function, so I stepped through a few lines using <s> to understand 
+it. I found out that 'timesepc_cmp' used subtraction to determine which file was older. This method 
+is susceptible to overflow which will occur when the difference is too large to fit within an 
+integer. This explains why dates too old will jump forward in time and appear to be from the future.
+
+<list>
+Output:
+	46      timespec_cmp (struct timespec a, struct timespec b)
+	47      {
+	48	  int diff = a.tv_sec - b.tv_sec;
+	49	  return diff ? diff : a.tv_nsec - b.tv_nsec;
+	50      }
+
+	I realized that 'timespec_cmp' needed to be revised so that it doesn't use subtraction to 
+compare two integers. This function was inside '/lib/timespec.h'.
+
+<q>
+<y>
+
+
+================================================================================
+MAKING PATCH
+
+
+<cd ../lib>
+	This changes the directory to ~/35L/lab4/coreutils-with-bug/dir, which is where timespec.h is 
+located.
+
+
+<cp timespec.h patch.h>
+	This duplicates the file 'timespec.h' and names the second copy 'patch.h', which is the one 
+we are editing. 
+
+
+<emacs patch.h>
+<C-s>
+<int diff>
+	I opened the patch file and searched for the first part of the timespec_cmp function 'int 
+diff'. After I found it, I changed the function to the following below.
+
+	timespec_cmp (struct timespec a, struct timespec b)
+	{
+	  return a.tv_sec > b.tv_sec ? 1 : (a.tv_sec < b.tv_sec ? -1 : 0);
+	}
+<C-x>
+<C-c>
+<y>
+
+
+<diff -u timespec.h patch.h > lab4.diff>
+	This creates the diff file, which contains all the differences between the two files 
+timespec.h and patch.h. This should only contain the edit to timespec_cmp. I can check with emacs.
+
+
+<emacs lab4.diff>
+	Everything looks good.
+<C-x>
+<C-c>
+
+
+<patch -p0 < lab4.diff>
+	This patches the file. Since the file paths do not need to be modified inside the patch, the 
+'-p0' option is used. The patch ran successfully outputting only the following:
+	patching file timespec.h
+
+
+<make>
+	We need to recompile. To test if the patch worked, we rerun the commands that recreated the 
+error. 
+
+
+<tmp=$(mktemp -d)>
+<cd $tmp>
+<touch -d '1918-11-11 11:00 GMT' wwi-armistice>
+<touch now>
+<sleep 1>
+<touch now1>
+<TZ=UTC0 /u/eng/class/classurx/35L/lab4/coreutils-with-bug/src/ls -lt --full-time wwi-armistice now now1>
+Output:
+	-rw-r--r-- 1 classurx class 0 2018-02-11 00:19:46.420971682 +0000 now1
+	-rw-r--r-- 1 classurx class 0 2018-02-11 00:19:45.417954908 +0000 now
+	-rw-r--r-- 1 classurx class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+
+	Since wwi-armistice is listed last, the patch was successful. Everything is listed in order 
+from newest to oldest.
+
+
+================================================================================
+TESTING SEASNET
+
+
+<cd ~/35L/lab4>
+	I changed the directory to outside coreutils-with-bug to see if the bug is still present on 
+SEASnet servers. I ran all the previous commands to produce the bug, but used the pre-install 
+versions of touch and ls. 
+
+
+<touch -d '1918-11-11 11:00 GMT' wwi-armistice>
+<touch now>
+<sleep 1>
+<touch now1>
+<ls -lt --full-time wwi-armistice now now1>
+Output:
+	-rw-r--r-- 1 classurx class 0 2054-12-17 09:28:16.000000000 -0800 wwi-armistice
+	-rw-r--r-- 1 classurx class 0 2018-02-10 17:24:14.680169000 -0800 now1
+	-rw-r--r-- 1 classurx class 0 2018-02-10 17:24:13.675078000 -0800 now
+
+	The bug is still present in SEASnet servers; however, there is a small difference of the date 
+outputted for wwi-armistice. With coreutils, the year would be '1918', which is the correct year, but 
+with SEASnet, the year outputted is '2054'. This shows that dates too far back will wrap around and 
+may appear to be from the future.
+
+
+================================================================================

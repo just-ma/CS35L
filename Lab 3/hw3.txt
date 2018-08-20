@@ -1,0 +1,48 @@
+Justin Ma
+Lab 3
+
+==========================================
+1. 
+	'case long_iso_time_style:' is within a switch 
+statement twice. It is removed because it is redundant. The 
+first case of 'case long_iso_time_style:' is blank, so if 
+it encounters the case, the switch statement will jump to 
+the next case which is also 'case long_iso_time_style:'.
+	Removing it will have no effect in the end.
+
+
+==========================================
+2.
+
+	The patched version replaces numbered dates, which 
+are universal, with English words, which only English-
+speakers can understand. This causes a problem if some 
+employees are international and cannot read the new format.
+
+
+==========================================
+3.
+
+	The file /dev/null is blank with no lines. This 
+passes all the conditions in randline.py since it only 
+checks if the number of lines is negative (if numlines < 
+0:). It would run chooseline() which returns 
+random.choice(self.lines). However, this would produce an 
+index error since it expects lines but there are none, so 
+index is out of range.
+
+
+==========================================
+4.
+	Python 3 removed automatic tuple unpacking which is 
+assigning values automatically to tuples within parameters 
+of a function. This means function parameters that include 
+2 or more objects will no longer be valid in Python 3.
+	This causes trouble for a line near the end:
+	except IOError as (errno, strerror):
+
+	This tuple as a parameter becomes invalid in Python 
+3 producing a syntax error.
+
+
+==========================================

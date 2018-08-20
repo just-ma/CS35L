@@ -1,0 +1,113 @@
+Justin Ma
+Lab 5
+
+================================================================================
+
+
+<mkdir 35L/lab5>
+<cd 35L/lab5>
+<emacs tr2b.c>
+	I wrote the code for the buffered program.
+<C-x>
+<C-c>
+<y>
+
+<emacs tr2u.c>
+	I wrote the code for the unbuffered program.
+<C-x>
+<C-c>
+<y>
+
+
+<gcc -o tr2u tr2u.c>
+<gcc -o tr2b tr2b.c>
+	This compiles the programs into executables.
+
+
+<touch test.txt>
+<truncate -s 5M test.txt>
+	Creates text file called 'test.txt'. The truncate command extends the size to 5MB. We can check how 
+many bytes the file is with the ls command.
+
+
+<ls -l test.txt>
+Output:
+	-rw-r--r-- 1 classurx class 5242880 Feb 17 02:47 test.txt
+
+	Indeed, the file test.txt is over 5,000,000 bytes.
+
+
+<man strace>
+	From the manual page, I found out that the '-c' option outputs the count time for each system call. 
+This is what we'll want to use when looking at the list of system calls from each program.
+
+
+<strace -c ./tr2b 'abcdefg' 'hijklmn' < test.txt > bout>
+Output:
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 71.22    0.001272           2       642           read
+ 21.56    0.000385           1       640           write
+  2.46    0.000044           5         9           mmap
+  1.51    0.000027           7         4           mprotect
+  0.78    0.000014           7         2           open
+  0.62    0.000011           3         4           fstat
+  0.50    0.000009           9         1           execve
+  0.39    0.000007           4         2           close
+  0.39    0.000007           7         1           brk
+  0.34    0.000006           6         1         1 access
+  0.22    0.000004           4         1           arch_prctl
+  0.00    0.000000           0         1           munmap
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.001786                  1308         1 total
+
+
+<strace -c ./tr2u 'abcdefg' 'hijklmn' < test.txt > uout>
+Output:
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 55.30   23.137585           4   5242880           write
+ 44.70   18.700287           4   5242882           read
+  0.00    0.000043           6         7           mmap
+  0.00    0.000030           8         4           mprotect
+  0.00    0.000016           8         2           open
+  0.00    0.000012          12         1           munmap
+  0.00    0.000009           5         2           fstat
+  0.00    0.000008           4         2           close
+  0.00    0.000008           8         1         1 access
+  0.00    0.000007           7         1           execve
+  0.00    0.000005           5         1           brk
+  0.00    0.000004           4         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   41.838014              10485784         1 total
+
+	The tr2u program preformed significantly more calls than tr2b, with around 10,000 more calls. This 
+obviously made the unbuffered program much slower by taking over 40 seconds while the buffered program 
+finished in 1 millisecond. The most used system calls for both programs were read and write. 
+
+
+<man time>
+	I need to know how to use the time command and found out that I don't need any options for this 
+case.
+
+
+<time ./tr2b 'abcdefg' 'hijklmn' < test.txt > bout2>
+Output:
+
+real	0m0.226s
+user	0m0.176s
+sys	0m0.004s
+
+
+<time ./tr2u 'abcdefg' 'hijklmn' < test.txt > uout2>
+Output:
+
+real	0m10.903s
+user	0m1.266s
+sys	0m9.587s
+
+	This confirms that the unbuffered program runs significantly slower than the buffered program. Thus, 
+using the getchar and putchar commands are far more efficient when reading each byte at a time than the read 
+and write commands.

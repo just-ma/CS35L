@@ -1,0 +1,44 @@
+#!/bin/bash
+
+export LC_ALL='C'
+IFS=$'\n' 
+Thisdir=$1
+List=`ls -a $Thisdir | sort`
+declare -a Array
+let Count=0
+
+for Item in $List
+do
+    if [ -f "$Thisdir/$Item" ]
+    then
+	if [ -r "$Thisdir/$Item" ]
+	then
+	    if [ -L "$Thisdir/$Item" ]
+	    then
+		continue
+	    else
+		Array[$Count]="$Thisdir/$Item"
+		let "Count++"
+	    fi
+	fi
+    fi
+done
+
+for ((num=0; num<$Count; num++))
+do
+    if [ -L "$Thisdir/$Item" ]
+    then
+	continue
+    else
+	for ((num2=$num+1; num2<$Count; num2++))
+	do
+	    cmp -s "${Array[$num]}" "${Array[$num2]}"
+	    if [ $? -eq 0 ]
+	    then
+		ln -f "${Array[$num]}" "${Array[$num2]}"
+	    else
+		continue
+	    fi
+	done
+    fi
+done

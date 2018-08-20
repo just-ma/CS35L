@@ -1,0 +1,287 @@
+Justin Ma
+Lab 1
+
+==========================================
+
+1.
+
+<man man>
+     Through this, I found an example revealing how to search for
+     commands with keywords in their man page description using -k.
+
+==========================================
+
+2.
+
+<man -k locate command>
+     Using the knowledge above, I searched for commands that could
+     locate programs by name. I found 'which', which showed the full
+     path of shell commands.
+
+<which cp>
+Output:
+	/usr/local/cs/bin/cp
+
+<which wc>
+Output:
+	/usr/local/cs/bin/wc
+
+==========================================
+
+3.
+
+<man -k find>
+     I searched for commands that could help find programs. I found
+     'find', which searches for files in a directory hierarchy.
+
+<man find>
+     Looking through the find command, I found out I could search for
+     certain names with -name. Also, the metacharacter '?' represents
+     any single character. I could also search within a directory by
+     attaching the path.
+
+<find /usr/bin -name '?'>
+Output:
+	/usr/bin/X
+	/usr/bin/w
+	/usr/bin/[
+
+<man w>
+    This shows who is logged on and what they are doing.
+
+<man [>
+    This is a bash builtin command
+
+<man X>
+    The man command did not work on X, meaning it is a symbolic link.
+    To determine what it points to, I searched for commands dealing
+    with symbolic links.
+
+<man -k symbolic link>
+     Searchin through this, I found readlink, which prints resolved
+     symbolic links. Thus, I used this to find what X points to.
+
+<man readlink>
+     I found that I can append the path of the file I want to observe.
+
+<readlink /usr/bin/X>
+Output:
+	Xorg
+
+<man Xorg>
+     X points to Xorg, which is the X11R7 X server.
+
+==========================================
+
+4.
+
+<readlink /usr/bin/emacs>
+Output:
+	/etc/alternatives/emacs
+
+	Thus, /usr/bin/emacs is a symbolic link executing
+	/etc/alternatives/emacs
+
+==========================================
+
+5.
+
+<man chmod>
+     From this I learned the following:
+     g refers to other users in the file's group
+     o refers to other users NOT in the file's group
+     + causes the selected file mode bits to be added to the existing
+     file mode bits of each file
+     - causes them to be removed
+     s means set user of group ID on execution
+     x means execute
+
+     So, g+s means users in the file's group gain permission of a
+     file and set user of group ID on execution
+     o-x means other users not in the file's group are denied
+     permission to execute commands
+
+==========================================
+
+6.
+
+<man find>
+     I found that -mtime n finds files that have been modified n*24
+     hours ago. With a little algebra, I found that n=21 for 3 weeks.
+     So the command <find -mtime 21> would work.
+
+==========================================
+
+7.
+
+<man find>
+     We want to limit out search to directories, so I used -type d to
+     limit search to just directories.
+
+<find / -mtime 21>
+      The root means it searches the entire / directory.
+
+==========================================
+
+8.
+
+<which find>
+Output:
+	/usr/bin/find
+
+<man find>
+     I found that -type l will limit the search to symbolic links only.
+
+<man -k count>
+     I wanted a command that could count the number of lines the find
+     command outputs. I found wc, which can print the newline count
+     for a file.
+
+<man wc>
+     I found that the option -l prints the newline count specifically.
+
+<find /usr/bin -type l | wc -l>
+Output:
+	293
+
+	So, there are 293 symbolic links in the directory find is
+	located in.
+
+==========================================
+
+9.
+
+<man ls>
+     I found that -l option is long listing format which includes
+     stats like date last modified. In addition, the -t option sorts
+     the listing by time. Finally, the -a option includes files
+     starting with '.'.
+
+<ls /usr/lib -lta>
+    The every last entry in the list was the oldest file in the
+    directory.
+
+Output:
+	-rwxr-xr-x   1 root root   18692 Jan 26  2014
+	libgpg-error.so.0.10.0
+
+==========================================
+
+10.
+
+<man locale>
+     I found out that locale simply displays locale settings. Under
+     SEE ALSO, I found localedef and decided to follow it.
+
+<man localedef>
+     I found out that localedef defines locale environment, meaning
+     this is what locale gets its data from.
+
+==========================================
+
+11.
+
+<emacs>
+	This opened emacs, and from the menu, I found that <C-h>
+	opens up the help menu.
+
+<C-h>
+	To view my options, I could type '?'.
+
+<?>
+	I found 'a' (command-apropos) -  Type a list of words or a
+	regexp; it shows a list of commands whose names match.
+
+<a>
+<sort>
+	This listed all emacs commands with sort in their name:
+	Buffer-menu-sort
+	sort-columns
+	sort-fields
+	sort-lines
+	sort-numeric-fields
+	sort-pages
+	sort-paragraphs
+	sort-regexp-fields
+	tabulated-list-col-sort
+
+==========================================
+
+12.
+
+<C-h ?>
+     Help window with all options. I used space to scroll down and
+     delete to scroll up. I found that 'k' looks up certain key
+     bindings.
+
+<C-M-a>
+	I found out that C-M-a runs the command beginning-of-defun.
+	Move backward to the beginning of a defun. I repeated the
+	previous steps for all other key bindings, but instead of
+	<C-h ?>, I went directly to <C-h k>.
+
+C-M-b runs the command backward-sexp. Move backward across one
+balanced expression.
+C-M-c runs the command exit-recursive-edit. Exit from the innermost
+recursive edit or minibuffer.
+C-M-d runs the command down-list. Move forward down one level of
+parentheses.
+C-M-e runs the command end-of-defun. Move forward to next end of defun.
+C-M-f runs the command forward-sexp. Move forward across one balanced
+expression.
+C-g exists but C-M-g does NOT exist.
+C-M-h runs the command mark-defun. Put mark at end of this defun,
+point at beginning.
+
+==========================================
+
+13.
+
+<C-h k>
+<C-g>
+	I found that C-g runs the command keyboard-quit (found in
+	global-map). It signals a 'quit' condition, causing a quit
+	directly suring execution of lisp code. However, at the top-
+	level, it simply beeps.
+
+==========================================
+
+14.
+
+<C-h ?>
+     I found that 'f' allowed me to look up the documentation of
+     functions
+
+<f>
+<yank>
+	I found out that yank is an interactive compiled lisp
+	function in 'simple.el'. It is bound to C-y. It reinserts
+	("paste") the last stretch of killed text.
+
+==========================================
+
+15.
+
+<C-h f>
+<dired>
+	I found out that its linked to the <C-x d> command.
+
+<C-x C-c>
+     This exits emacs.
+
+<cd /usr/bin>
+    This moves me to the /usr/bin directory.
+
+<ls -l>
+    This lists out the contents of the directory in lost list format,
+    showing dates last modified, symbolic links, etc.
+
+<emacs C-x d>
+       This executed the dired command, as learned from above. It
+       seemed like an exact copy, except that dired included the
+       following at the very beginning:
+
+  dr-xr-xr-x.   2 root root       81920 Dec 28 13:15 .
+  drwxr-xr-x.  16 root root        4096 Dec  5  2016 ..
+
+==========================================

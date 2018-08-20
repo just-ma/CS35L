@@ -1,0 +1,11 @@
+In the top half:
+   The leftmost box includes the names of all the commits along with branches showing the connections
+   among them.
+   The middle box includes the name of the user and the login ID of the person who created the commits
+   The rightmost box the date the commit was created.
+
+In the bottom half:
+   In the left box, provides a summary of all the information including the author, date created,
+   committer, parent, commit ID, child ID, branches, what it follow,  what it proceeds, and a more
+   in-depth description.
+   The left box includes extra comments left behind.

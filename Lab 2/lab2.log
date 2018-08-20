@@ -1,0 +1,291 @@
+Justin Ma
+
+==========================================
+INTRO
+
+
+< locale >
+	The output did not match up with what I needed, so I ran the follow-up 
+command.
+
+
+< export LC_ALL='C' >
+< locale >
+	Now, it outputs LC_CTYPE="C", so we are in standard C.
+
+
+< sort -o words /usr/share/dict/words >
+	This creates a sorted file of /usr/share/dict/words named words in my 
+directory.
+
+
+< wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/assign2.html >
+	This downloads the .html file of the assignment page. It is named 
+assign2.html.
+
+
+==========================================
+TR EXAMPLES
+
+
+< man tr >
+	I found out that the tr command with option -c outputs only characters 
+within the set given. In the first code (tr -c 'A-Za-z' '[\n*]'), this means 
+any character a-z and A-Z. The [\n*] means have a new line for every character 
+not in the set.
+
+< q >
+
+
+< tr -c 'A-Za-z' '[\n*]' < assign2.html >
+	As predicted, this outputs every character normally in the set a-z and 
+A-Z, and it creates a newline for every character not in the set.
+
+
+< man tr >
+	I needed to look up what the -s option did. I found out that it it will 
+replace repeated characters listed in the last set with a single instance of 
+that character. In our case, it will replace repeated newlines with only one 
+newline.
+
+< q >
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html >
+	As predicted, this outputs the same as before, but all blank spaces are 
+condensed into single newlines.
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort >
+	This outputs the same as above, but each line is sorted A-Z, a-z.
+
+
+< man sort >
+	I need to find out what the -u option for sort does. Without the -c 
+option, it outputs the first line of each unique line. Thus, we shouldn't see 
+any repeated words/lines.
+
+< q >
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u >
+	As predicted, it outputs the same as above, but without repeated words/
+lines. Each line is unique.
+
+
+< man comm >
+	I learned that the comm command compares two sorted files, line by 
+line. In this case, it will compare the previous output with the words file 
+created earlier. The  - words option will produce 3 columns with the first one 
+containing only words found in file1, the second one containing only words 
+found in file2 (words), and the third one containing words found in both files.
+
+< q >
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm - words >
+	As expected, it outputs 3 columns with words sorted A-Z, a-z. The first 
+column contains unique file1 words, the second column contains unique file2 
+words (words) and the third column contains overlapping words.
+
+
+< man comm >
+	I learned that the -23 option will suppress columns 2 and 3. Thus, we 
+should only see column 1, words unique to the first file.
+
+< q >
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm -23 - words >
+	As expected, it only outputs column 1 from the previous output. This 
+shows only words unique to list 1.
+
+
+==========================================
+BUILDWORDS AND HWORDS
+
+
+< wget http://mauimapp.com/moolelo/hwnwdseng.htm >
+
+
+< man grep >
+	'\' is for making special characters normal text. '.' represents any 
+single character, and '.*' represents 0 or more of any character.
+< q >
+
+
+< man sed >
+	I found in the Addresses section, 'sed -n 1~2p' prints all the odd 
+numbered lines since it starts at line 1, and prints every 2th step. We want 
+the opposite, so 'sed -n 0~2p' will start at the zeroth line and go every other 
+line, printing only the even lines, which are the Hawaiian words. Also, '^' 
+represents the beginning of a line and '$' represents the end of a line.
+< q >
+
+
+< man tr >
+	I learned that [:blank:] represents all horizontal whitespace including 
+tab.
+
+
+< emacs buildwords >
+	This creates the shell script, buildwords.
+
+
+< #!/bin/sh >
+	The start of every shell script need this to run.
+< Enter >
+
+
+< grep '<td>..*<\/td>' |  >
+	This takes all the English words and Hawaiian words, which are located 
+within the '<td>' and '</td>'. Since '/' is a special character, it needs '\' 
+in front of it to normalize it. '.' represents any single character. '.*' 
+represents 0 or more of any character. There are some lines with <td>...</td> 
+with nothing inside. To weed these out, I used '..*' to search for ones with at 
+least one character inside.
+
+
+< sed -n 0~2p |  >
+	'sed -n 0~2p' will start at the zeroth line and print every other line, 
+printing only the even lines. This will leave only the Hawaiian words and 
+exclude all English words.
+
+
+< sed 's/<td>//' |  >
+	This will search for instances of '<td>' and replace them with nothing, 
+essentially deleting them.
+
+
+< sed 's/<\/td>//' |  >
+	This will search for instances of '</td>' and replace them with 
+nothing, essentially deleting them. Since '/' is a special character, it needs 
+'\' in front of it to normalize it.
+
+
+< sed 's/<u>//g' |  >
+	This will search for instances of '<u>' and replace them with nothing, 
+essentially deleting them. The g option continues to search the line, even 
+after a hit. This is used because some lines have multiple instances of '<u>'.
+
+
+< sed 's/<\/u>//g' |  >
+	This will search for instances of '</u>' and replace them with nothing, 
+essentially deleting them. Since '/' is a special character, it needs '\' in 
+front of it to normalize it. The g option continues to search the line, even 
+after a hit. This is used because some lines have multiple instances of '</u>'.
+
+
+< sed 's/,//g' |  >
+	This searches for ',' and replaces them with nothing, essentially 
+deleting them.
+
+
+< sed 's/ /\n/g' |  >
+	This searches for any spaces and replaces them with newlines. This 
+makes words with spaces between them into two separate words. However, this 
+also creates many newlines between words since every line was indented with 4 
+spaces.
+
+
+< sed '/^$/d' |  >
+	To get rid of all the blank newlines formed from the previous command, 
+this searches for blank lines and deletes them. '^' represents the front of a 
+lines and '$' represents the back, so '^$' represents a blank line.
+
+
+< tr [A-Z] [a-z]  >
+	This replaces all capital letters with lowercase letters.
+
+
+< tr [\`] [\'] |  >
+	This replaces all instances of "`" with "'".
+
+
+< grep "^[pk\'mnwlhaeiou]*$" |  >
+	To weed out any invalid Hawaiian words, this command filters through 
+only lines containing just valid Hawaiian letters. The '^' represents the 
+beginning of a lines and the '$' represents the end. Everything in the square 
+bracket represents one of any of those characters, and the '*' means one of 
+more occurrences of that.
+
+
+< sort -u >
+	With only valid Hawaiian words in the correct format, this command 
+sorts the lines. The u option filters out repeated lines, so there are only 
+unique words.
+< C-x C-c >
+< y >
+
+
+< chmod +x buildwords > 
+	This grants permission(+) for buildwords to be executed(x).
+
+
+< ./buildwords < hwnwdseng.htm > hwords >
+	This inputs hwnwdseng.htm into buildwords, and places the output of the 
+executable into a file called hwords. Now, hwords contains a dictionary of 
+Hawaiian words.
+
+
+==========================================
+HAWAIIAN SPELLCHECKER
+
+
+< tr [A-Z] [a-z] < assign2.html | tr -cs "pk\'mnwlhaeiou" '[\n*]' | sort -u | 
+comm -23 - hwords > hmisspelled >
+	This creates a list of misspelled Hawaiian words named "hmisspelled". 
+First, it converts all uppercased letters to lowercase. Then, it filters out 
+words that contain characters other than [pk'mnwlhaeiou]. Everything in between 
+turns into a single instance of a newline. Then, it sorts it alphabetically, 
+filtering out duplicates, and finally, it finds words not contained in the 
+Hawaiian dictionary to reveal all misspelled words.
+
+
+< tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm -23 - words > 
+misspelled >
+	This creates a list of misspelled English words named "misspelled". It 
+works the same as the command above, but skips the converting to lowercase 
+step. 
+
+
+< man wc >
+	I found out that wc can ount the number of words in a file with the -w 
+option.
+
+
+< wc -w hmisspelled >
+Output: 197 hmisspelled
+	Thus, there are 197 misspelled Hawaiian words in assign2.html.
+
+
+< wc -w misspelled >
+Output: 80 misspelled
+	Thus, there are 80 misspelled English words in assign2.html.
+
+
+< comm hmisspelled misspelled >
+
+	Everything in the first column contains words misspelled in Hawaiian 
+but not in English. Example include:
+	amine
+	awk
+	hawaiian
+	people
+	uppo
+
+	Everything in the second column contains words misspelled in English 
+but not in Hawaiian. Examples include:
+	ALL
+	Eggert
+	VanDeBogart
+	onlinepubs
+	wiki
+	
+	Everything in the third column contains words misspelled in both 
+Hawaiian and English. Examples include:
+	mauimapp
+	moolelo
+	okina
+	ul
+	www

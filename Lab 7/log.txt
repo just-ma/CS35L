@@ -1,0 +1,68 @@
+Justin Ma
+Lab 7
+
+================================================================================
+SETTING UP
+
+
+1. Plugged the BeagleBone into my MacBook via USB.
+
+2. Opened the BeagleBone device on my desktop.
+
+3. Opened "START.htm", and followed the instructions.
+
+4. Installed both drivers for Mac OS X and restarted my computer. The change was reflected in 
+"START.htm" with step 2 highlighted green.
+
+5. Opened terminal
+
+
+<sudo ssh root@192.168.7.2>
+	I typed in my computer's password, then the BeagleBone's password to SSH into my BeagleBone. 
+
+<sudo connmanctl>
+<enable wifi>
+<scan wifi>
+<services>
+<agent on>
+<connect wifi_2cf7f106667e_47656e6520426c6f636b_managed_psk>
+
+	This was the wifi from the hotspot from my phone. I typed the password and a connection was 
+established.
+
+<quit>
+
+
+================================================================================
+REMOTE HOST SIDE
+
+
+	My partner ran <ifconfig> to find his IP address, which was "172.20.10.5".
+
+
+<ssh-keygen>
+	This generated a pair of public and private keys. I left the file to save the key in as the 
+default, and generated the passphrase "beaglebone2". 
+
+
+<ssh-copy-id -i justin@172.20.10.5>
+	This SSH's to the server under the remote host my partner created named "justin". I logged in 
+with the password he created, "beaglebone1".
+
+
+<ssh -X justin@172.20.10.5>
+	I tried logging in again with X11 session forwarding. Again, I typed the password, 
+"beaglebone1", which successfully logs me in.
+
+
+<ls>
+	It outputted no results. To see if I was actually a remote host, I used the touch command to 
+create a file.
+
+
+<touch beagle.txt>
+<ls>
+	Now I saw beagle.txt show up, meaning the file was created.
+
+
+<exit>

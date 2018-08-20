@@ -1,0 +1,38 @@
+SFROB:
+<time ./sfrob < test.txt > s1>
+
+real	0m0.291s
+user	0m0.224s
+sys	0m0.015s
+
+
+SFROBU:
+<time ./sfrobu < test.txt > s1>
+
+real	0m9.254s
+user	0m1.461s
+sys	0m7.744s
+
+
+SFROBU -F:
+<time ./sfrobu -f < test.txt > s1>
+
+real	0m9.302s
+user	0m1.485s
+sys	0m7.768s
+
+
+SFROBS:
+<time ./sfrobs < test.txt > s1>
+
+real	0m0.093s
+user	0m0.010s
+sys	0m0.033s
+
+
+SFROBS -F:
+<time ./sfrobs -f < test.txt > s1>
+
+real	0m0.076s
+user	0m0.015s
+sys	0m0.028s

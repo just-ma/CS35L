@@ -1,0 +1,164 @@
+Homework 1: Learning to use Emacs
+Justin Ma
+
+==========================================
+
+1.1
+
+C-s H T M L Enter
+
+C-s s c M-b
+
+C-s s e l f M-b
+
+C-s a r r o w M-b
+
+C-e
+
+C-a
+
+C-x C-c y
+
+==========================================
+
+1.2
+
+M-g g 1 8 Enter C-k Backspace
+
+C-s D E C-a C-k Backspace
+
+C-s < ! C-a C-SP M-} Backspace
+
+C-s ! C-b C-b M-z > C-e C-SP M-} M-} C-b Backspace M-> C-p C-k
+Backspace
+
+C-x C-c y
+
+d i f f SP - u SP e x e r 1 . h t m l SP e x e r 2 . h t m l SP > e x
+e r 2 . d i f f Enter
+
+It matches what I'm suppose to see
+
+==========================================
+
+1.3
+
+C-s SP 1 C-b 5 C-s SP 1 C-b 5
+
+M-< C-s 8 Enter Backspace A S C I I
+
+C-s / o C-n Enter
+
+C-x C-c y
+
+d i f f SP - u SP e x e r 1 . h t m l SP e x e r 3 . h t m l SP > e x
+e r 3 . d i f f Enter
+
+It matches what I'm suppose to see
+
+==========================================
+
+1.4
+
+C-s < ! - C-a C-f C-SP C-e C-w M-g g 1 8 Enter C-y Enter
+C-s < ! C-b C-b C-SP C-e C-w M-g g 1 1 4 Enter C-y Enter
+C-s < ! C-b C-b C-SP M-} C-w M-g g 3 2 4 Enter C-y C-p C-f Backspace
+C-p C-f Backspace
+C-s < ! C-b C-b C-SP M-7 C-f C-w M-g g 3 6 2 Enter M-6 C-b C-y
+C-s < ! M-4 C-f Backspace C-n C-f Backspace C-n C-f Backspace C-n
+C-SP M-{ C-p C-f C-w M-g g 3 6 2 Enter C-y
+M-> C-b C-SP C-a C-f C-w M-g g 3 8 0 Enter C-y Enter Enter
+
+C-SP M-> Backspace Backspace
+
+C-x u C-x u
+
+- - > M-g g 3 8 2 < ! - -
+
+M-< C-s < o l > M-% < o L > Enter SP SP SP SP SP SP SP
+    Found 7 instances of <ol>
+
+C-x C-c y
+
+d i f f SP - u SP e x e r 1 . h t m l SP e x e r 4 . h t m l SP > e x
+e r 4 . d i f f Enter
+
+==========================================
+
+1.5
+
+(currently in ~ directory)
+e m a c s Enter M-x m k d i r Enter j u n k Enter
+
+C-x C-f j u n k / h e l l o . c Enter
+(paste code)
+
+M-x c o m p i l e Enter C-a C-k g c c SP h e l l o . c Enter y
+
+M-x c o m p i l e Enter C-a C-k ~ / j u n k / a . o u t Enter y C-x 0
+C-x C-w h e l l o - o u t Enter 
+
+C-SP M-> C-w C-y C-x C-f C-a C-k ~ / C S 3 5 L / l a b 1 / k e y 1 .
+t x t Enter M-> C-y
+
+-*- mode: compilation; default-directory: "~/junk/" -*-
+Compilation started at Sat Jan 13 17:30:17
+
+~/junk/a.out
+#include <stdio.h>
+int
+main (void)
+{
+  char n = '\n';
+  char b = '\\';
+  char q = '"';
+  char const *p = "#include <stdio.h>%cint%cmain (void)%c{%c  char n =
+  '%cn';%c  char b = '%c%c';%c  char q = '%c';%c  char const *p = %c%s%
+  c;%c  printf (p, n, n, n, n, b, n, b, b, n, q, n, q, p, q, n, n, n, n
+  );%c  return 0;%c}%c";
+  printf (p, n, n, n, n, b, n, b, b, n, q, n, q, p, q, n, n, n, n);
+  return 0;
+}
+
+Compilation finished at Sat Jan 13 17:30:17
+
+==========================================
+
+1.6
+
+C-x b Enter
+
+( r a n d o m ) C-j
+
+( s e t q SP x SP ( r a n d o m ) ) C-j ( s e t q SP y SP ( r a n d o m
+) ) C-j
+
+( - SP x SP y) C-j
+  This result is mathematically correct
+  I repeated the previous steps of setting x and y and calculating
+  their difference.
+  After 11 tries, I got a mathematically incorrect answer
+x = 1623871062208660201
+y = -1912553088327774441
+(- x y) = -1075261867890953262, but should be 3.53642415e18
+
+M-: ( - SP x SP y) Enter
+    The result is still the same number (-1075261867890953262)
+
+They are not truly random. The random function, just like any computer
+function, is predetermined. It may depend on minute details like the
+last digit of the current time recorded in nanoseconds, but this is
+still predictable.
+
+The mathematical error occurs when overflow occurs. So we can simplify
+the problem to when the range of integers is [-4,4]. The total number
+of sums is 9*9 = 81.
+    When x = -4, y can be [1,4], which is 4 options
+    When x = -3, y can be [2,4], which is 3 options
+    When x = -2, y can be [3,4], which is 2 options
+    When x = -1, y must be 4, which is 1 option
+The negatives of x have the same number of options, just with y being
+negative instead of positive. And, when x = 0, there are no overflow
+options. So, the overflow possibilities count up to be: 2(1+2+3+4) =
+2(10) = 20.
+Chance of overflowing = 20/81 = 1/4.

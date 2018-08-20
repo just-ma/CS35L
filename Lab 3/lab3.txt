@@ -1,0 +1,197 @@
+Justin Ma
+Lab 3
+
+==========================================
+1.
+
+<wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz>
+	This downloaded the tar file I needed. Now, I need 
+to open it.
+
+
+<tar -xzvf coreutils-7.6.tar.gz test>
+	This decompresses the tar file. All the contents are
+ now in a folder named 'coretils-7.6'.
+
+
+==========================================
+2.
+
+<cd coreutils-7.6>
+<ls>
+	Now, I'm inside the coreutils directory and have the
+ contents in front of me. I need to know how to install it, 
+and the 'INSTALL' file has the instructions.
+
+
+<emacs INSTALL>
+	This opens up the file. I need to search for how to 
+use the '--prefix' flag.
+
+
+<C-s>
+<--prefix>
+	I learned that all I need after './configure' is 
+'--prefix=DIR'. In this case, I want to install in the
+ directory I recently created which is located at 
+/u/eng/class/classurx/35L/lab3/cuinstall.
+<C-x>
+<C-c>
+
+
+<./configure --prefix=/u/eng/class/classurx/35L/lab3/cuinstall>
+	Initially, I ran into the problem that stated I had 
+no space to configure. This problem disappeared by simply 
+waiting a day and trying again. I also ran into the problem 
+where nothing was showing up in the installment directory. 
+This was caused from me creating the directory beforehand. 
+The directory should be created during configuration.
+
+
+<make>
+	This compiles it.
+
+
+<make install>
+	This installs it into the directory cuinstall.
+
+
+==========================================
+3.
+
+<cd ../cuinstall>
+<ls>
+	This shows the directories inside the installment 
+directory. I'm interested in the bin directory containing 
+the ls command.
+
+
+<cd bin>
+<ls>
+	I found the ls command. Now I need to test it to 
+recreate the error.
+
+
+<./ls -l /bin/bash>
+Output:
+	-rwxr-xr-x 1 root root 960632 2017-08-03 06:36 
+/bin/bash
+
+	As expected, I got the YYYY-MM-DD format. To double-
+check the locale, I can run the locale command.
+
+
+<locale>
+	As expected, everything is set to "en_US.UTF-8". 
+Now, I need to install the patch.
+
+
+==========================================
+4.
+
+<cd ../../coreutils-7.6>
+<emacs patch_f.diff>
+	I copied the patch and pasted into this file.
+<C-x>
+<C-c>
+<y>
+
+
+<man patch>
+	I learned that the option -pnum strips num number 
+of leading slashes from the file names in the patch file. 
+This should be set to 1 to get rid of the 'a/...' and 'b/...' 
+prefixes.  
+<q>
+
+
+<patch -p1 < patch_f.diff>
+	This creates the patch as described above. 
+Everything ran without errors.
+
+
+==========================================
+5.
+
+<cd src>
+	Now, it's time to check if the format is fixed. 
+The update from the patch is located in the 'src' directory.
+
+
+<make>
+	This compiles it. The output includes a couple lines 
+of action, but not as many as the first 'make' command. This 
+is because it only goes over things that need to be changed. 
+Everything else is untouched. 
+	Only the make command is executed because we don't 
+want to install it, only compile.
+
+
+==========================================
+6.
+
+<./ls -l /bin/bash>
+	As expected, it outputs the desired format:
+
+	-rwxr-xr-x 1 root root 960632 Aug  3 06:36 /bin/bash
+
+	
+<cd ../../cuinstall/bin>
+	We can compare with the broken version again to see 
+if it's still broken.
+
+
+<./ls -l /bin/bash>
+Output:
+	-rwxr-xr-x 1 root root 960632 2017-08-03 06:36 
+/bin/bash
+
+
+<man touch>
+	I need to create two files, one old and one new. 
+So, I need to figure out how to manually alter a file's 
+timestamp. From the man page, I found out that the '-t' 
+flag works.
+<q>
+
+
+<touch -t 9806171315 old_file> 
+	This creates a file named 'old_file' with a timestamp 
+at 1:15PM on June 17, 1998, which is over a year old.
+
+
+<touch new_file>
+	This creates a file named 'new_file' with a timestamp 
+on the current date and time.
+
+
+<./ls -l old_file>
+Output:
+	-rw-r--r-- 1 classurx class 0 1998-06-17 13:15 old_file
+
+<./ls -l new_file>
+Output:
+	-rw-r--r-- 1 classurx class 0 2018-02-01 13:15 new_file
+
+
+<cd ../../coreutils-7.6>
+	Now, we redo the previous steps but within the 
+coreutils-7.6/src directory.
+
+<touch -t 9806171323 old_file> 
+<touch new_file>
+
+<./ls -l old_file>
+Output:
+	-rw-r--r-- 1 classurx class 0 Jun 17  1998 old_file
+
+<./ls -l new_file>
+Output:
+	-rw-r--r-- 1 classurx class 0 Feb  1 13:23 new_file
+
+	I noticed that for the broken version of ls, the 
+format did not change depending on whether it was over a 
+year old or not. However, for the patched version, when 
+the file was under a year old, it displayed the time (HH:MM) 
+it was created, and when the file was over a year old, it 
+displayed the year it was created.
